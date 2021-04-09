@@ -26,7 +26,7 @@
     </symbol>
   </svg>
   <transition name="fade">
-    <div class="results" v-if="showResults">
+    <div class="results" v-if="showResults && searchString.length > 3">
       <div v-for="item in urlSet" :key="item.url" v-show="pageMatch(item.data)">
         <div>
           <a :href="item.url" target="_blank" rel="noopener noreferrer">
@@ -56,8 +56,8 @@ export default {
       try {
         return data.includes(this.searchString);
       } catch (error) {
-        console.log(error);
-        return false
+        console.log("No page data yet.");
+        return false;
       }
     }
   },
@@ -74,13 +74,16 @@ export default {
       .then(() => {
         this.urlSet.forEach((el, i) => {
           axios.get(el.url).then(response => {
+            let DOMresponse = new DOMParser().parseFromString(
+              response.data.content,
+              "text/html"
+            );
             this.urlSet[i].data =
-              new DOMParser()
-                .parseFromString(response.data.content, "text/html")
-                .documentElement.textContent.trim() + " ";
-            this.urlSet[i].title = new DOMParser()
-              .parseFromString(response.data.content, "text/html")
-              .getElementsByTagName("h1")[0].textContent;
+              DOMresponse.documentElement.textContent.trim() + " ";
+            this.urlSet[i].title = DOMresponse.getElementsByTagName(
+              "h1"
+            )[0].textContent;
+            console.log(DOMresponse);
           });
         });
       });
@@ -99,14 +102,27 @@ export default {
   opacity: 0;
 }
 
-.results,
-a {
+.results {
+  width: 100%;
+  padding: 16px;
+  box-shadow: 0 3px 4px rgba(0, 0, 0, 0.15);
   font-family: sans-serif;
+  border-radius: 20px;
   color: #5a6674;
+  box-sizing: border-box;
+  border: 1px solid rgba(0, 0, 0, 0.05);
+  a {
+    color: #5a6674cc;
+    transition: color 0.2s ease;
+    text-decoration: none;
+    &:hover {
+      color: #5a6674;
+    }
+  }
   hr {
     border: 0;
     height: 1px;
-    background: #333;
+    background: rgba(0, 0, 0, 0.05);
   }
 }
 .search-form {
