@@ -1,5 +1,7 @@
 # site-search
 
+A simple website search component for Duda.co or other sitemap.xml enabled website builders.
+
 ## Project setup
 ```
 npm install
